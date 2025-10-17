@@ -1,67 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Usuario } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { User } from './entities/user.entity';
-import { AuthService } from '../auth/auth.service';
+import { CreateUsuarioDto } from './dto/create-user.dto';
 
 @Injectable()
-export class UsersService {
+export class UsuariosService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private authService: AuthService,
+    @InjectRepository(Usuario)
+    private usuariosRepo: Repository<Usuario>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const user = this.usersRepository.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-    await this.usersRepository.save(user);
-    return { message: 'User created successfully', user };
-  }
+  async registrarUsuario(data: CreateUsuarioDto) {
+    const { name, lastname, email, password, confirmPassword } = data;
 
-  async login(loginUserDto: LoginUserDto) {
-    const user = await this.usersRepository.findOneBy({
-      email: loginUserDto.email,
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (password !== confirmPassword) {
+      throw new BadRequestException('Las contraseñas no coinciden');
     }
 
-    const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
-    if (!isMatch) {
-      throw new NotFoundException('Invalid credentials');
+    const existe = await this.usuariosRepo.findOne({ where: { email } });
+    if (existe) {
+      throw new BadRequestException('El correo ya está registrado');
     }
 
-    const token = this.authService.generateJwt(user);
-    return { message: 'Login successful', token, user };
+    const hash = await bcrypt.hash(password, 10);
+
+    const nuevoUsuario = this.usuariosRepo.create({
+      name,
+      lastname,
+      email,
+      password: hash,
+    });
+
+    return this.usuariosRepo.save(nuevoUsuario);
   }
 
-  async findAll() {
-    return this.usersRepository.find({
-      select: ['id', 'name', 'email', 'role'],
+  async obtenerUsuarios() {
+    return this.usuariosRepo.find({
+      select: ['id', 'name', 'lastname', 'email'],
     });
   }
 
-  async findOne(id: number) {
-    const user = await this.usersRepository.findOne({
-      where: { id },
-      select: ['id', 'name', 'email', 'role'],
-    });
-    if (!user) throw new NotFoundException('User not found');
-    return user;
-  }
-
-  async remove(id: number) {
-    const user = await this.usersRepository.findOneBy({ id });
-    if (!user) throw new NotFoundException('User not found');
-    await this.usersRepository.remove(user);
-    return { message: 'User deleted successfully' };
+  async obtenerPorCorreo(email: string) {
+    return this.usuariosRepo.findOne({ where: { email } });
   }
 }

@@ -7,16 +7,19 @@ async function bootstrap() {
 
   // Permitir CORS (para conectar con Flutter)
   app.enableCors({
-    origin: '*', // luego puedes restringirlo si deseas
-    methods: 'GET,POST,PUT,DELETE',
+    origin: ['http://localhost:3000', 'http://10.0.2.2:3000', 'http://127.0.0.1:3000', '*'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
+
 
   // Activar validaciones automáticas de DTOs
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // ignora propiedades extra no definidas en DTOs
-      forbidNonWhitelisted: true, // lanza error si se mandan propiedades desconocidas
-      transform: true, // convierte automáticamente tipos primitivos
+      whitelist: true, 
+      forbidNonWhitelisted: true, 
+      transform: true, 
     }),
   );
 

@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
-export class User {
+@Entity('usuarios')
+export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -9,7 +9,7 @@ export class User {
   name: string;
 
   @Column()
-  lastName: string;
+  lastname: string;
 
   @Column({ unique: true })
   email: string;
@@ -17,12 +17,9 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: 'buyer' }) // 'buyer' o 'seller'
-  role: string;
+  @CreateDateColumn({ type: 'timestamptz' })
+  created_at: Date;
 
-  @Column({ nullable: true })
-  businessName?: string;
-
-  @Column({ nullable: true })
-  category?: string;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }
