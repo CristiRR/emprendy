@@ -45,4 +45,8 @@ export class EmprendedoresService {
             select: ['id', 'businessName', 'category', 'name', 'lastname', 'email'],
         });
     }
+
+    async obtenerPorCorreo(email: string) {
+        return this.emprendedorRepo.findOne({ where: { email } });
+    }
 }

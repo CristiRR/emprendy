@@ -5,10 +5,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsuariosModule } from 'src/users/users.module';
 import { JwtStrategy } from './jwt.strategy';
+import { EmprendedoresModule } from 'src/emprendedores/emprendedores.module';
 
 @Module({
   imports: [
     UsuariosModule,
+    EmprendedoresModule,
     PassportModule,
     JwtModule.register({
       secret: 'mi_secreto_super_seguro',

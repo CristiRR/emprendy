@@ -8,5 +8,6 @@ import { EmprendedoresController } from './emprendedores.controller';
   imports: [TypeOrmModule.forFeature([Emprendedor])],
   controllers: [EmprendedoresController],
   providers: [EmprendedoresService],
+  exports: [EmprendedoresService],
 })
 export class EmprendedoresModule {}
